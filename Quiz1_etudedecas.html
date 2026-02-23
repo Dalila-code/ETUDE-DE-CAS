@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Étude de cas complexe – Bilan Carbone (QCM interactif 30 questions)</title>
+  <style>
+    :root{
+      --bg:#070b18;
+      --card:#0e1730;
+      --card2:#0b132b;
+      --text:#e9efff;
+      --muted:#aab6dd;
+      --accent:#a78bfa; /* violet */
+      --accent2:#22c55e; /* vert */
+      --bad:#fb7185;     /* rose */
+      --warn:#fbbf24;
+      --line:rgba(255,255,255,.12);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(167,139,250,.18), transparent 55%),
+        radial-gradient(900px 600px at 85% 25%, rgba(34,197,94,.12), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      line-height:1.5;
+    }
+    header{
+      max-width:1180px; margin:0 auto; padding:26px 16px 8px;
+    }
+    h1{margin:0; font-size:clamp(20px, 2.1vw, 30px);}
+    .subtitle{margin:8px 0 0; color:var(--muted); max-width:980px;}
+    .wrap{
+      max-width:1180px; margin:0 auto; padding:16px;
+      display:grid; grid-template-columns: 1.15fr .85fr; gap:16px;
+    }
+    @media (max-width: 980px){ .wrap{grid-template-columns:1fr;} }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.38);
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      background:rgba(167,139,250,.12);
+      border:1px solid rgba(167,139,250,.25);
+      color:#e8dcff; font-size:12px;
+      margin-right:8px; white-space:nowrap;
+    }
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+    @media (max-width: 700px){ .grid2{grid-template-columns:1fr;} }
+
+    .hr{height:1px; background:var(--line); margin:12px 0;}
+    table{
+      width:100%; border-collapse:collapse;
+      border-radius:12px; overflow:hidden;
+      border:1px solid var(--line);
+      background:rgba(14,23,48,.55);
+    }
+    th,td{padding:10px; border-bottom:1px solid var(--line); font-size:13px; vertical-align:top;}
+    th{background:rgba(255,255,255,.04); text-align:left;}
+    tr:last-child td{border-bottom:none;}
+    .muted{color:var(--muted);}
+    .small{font-size:12px;}
+    .warn{
+      color:#ffe9b2;
+      background:rgba(251,191,36,.12);
+      border:1px solid rgba(251,191,36,.25);
+      padding:10px 12px;
+      border-radius:14px;
+    }
+
+    .q{
+      padding:14px; border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(14,23,48,.55);
+      margin:12px 0;
+    }
+    .qhead{display:flex; align-items:flex-start; justify-content:space-between; gap:12px;}
+    .qtitle{margin:0; font-size:15px; font-weight:700;}
+    .tag{
+      font-size:12px; padding:5px 9px; border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--muted); white-space:nowrap;
+    }
+    .choices{margin-top:10px; display:grid; gap:8px;}
+    label.choice{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px; border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      cursor:pointer;
+      transition: transform .08s ease, border-color .08s ease;
+    }
+    label.choice:hover{transform:translateY(-1px); border-color:rgba(167,139,250,.38);}
+    input{margin-top:2px;}
+    .explain{
+      margin-top:12px; padding:10px 12px; border-radius:12px;
+      border:1px dashed rgba(255,255,255,.18);
+      background:rgba(0,0,0,.18);
+      display:none;
+    }
+    .explain.good{border-color:rgba(34,197,94,.45);}
+    .explain.bad{border-color:rgba(251,113,133,.45);}
+    .explain .k{font-weight:800;}
+
+    .controls{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px;}
+    button{
+      appearance:none; border:none;
+      padding:10px 12px; border-radius:12px; cursor:pointer;
+      background:rgba(167,139,250,.18);
+      border:1px solid rgba(167,139,250,.35);
+      color:var(--text); font-weight:750;
+    }
+    button:hover{filter:brightness(1.06);}
+    button.secondary{
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      font-weight:650;
+    }
+    button.danger{
+      background:rgba(251,113,133,.14);
+      border:1px solid rgba(251,113,133,.35);
+    }
+
+    .stat{
+      padding:12px; border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(14,23,48,.55);
+      margin-bottom:10px;
+    }
+    .big{font-size:28px; font-weight:900; letter-spacing:.3px;}
+    .bar{
+      height:10px; border-radius:999px;
+      background:rgba(255,255,255,.08);
+      overflow:hidden; border:1px solid rgba(255,255,255,.12);
+      margin-top:8px;
+    }
+    .bar > div{
+      height:100%; width:0%;
+      background: linear-gradient(90deg, rgba(167,139,250,.95), rgba(34,197,94,.9));
+      transition: width .4s ease;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px; padding:2px 6px; border-radius:8px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:#dbe7ff; display:inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;">
+    <div>
+      <h1>Étude de cas complexe – <span style="color:var(--accent)">FROID&CO MULTISITES</span> (QCM 30 questions)</h1>
+      <p class="subtitle">
+        Cas volontairement plus piégeux : <b>conversion m³→kWh</b>, <b>diesel L/100 km</b>, <b>t.km à reconstruire</b>,
+        <b>location-based vs market-based</b>, <b>PRG frigorigènes</b>, <b>scope dominant</b>, et <b>priorisation</b>.
+        <br><span class="muted small">Tout est en QCM, avec correction et explications intégrées.</span>
+      </p>
+    </div>
+    <div>
+      <span class="pill">🧮 Calculs + conversions</span>
+      <span class="pill">🧊 Fuite dominante possible</span>
+      <span class="pill">📌 Scopes + double mat.</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <main class="card">
+    <h2 style="margin:0 0 8px;">📘 Énoncé</h2>
+
+    <div class="grid2">
+      <div class="card" style="padding:12px; background:rgba(14,23,48,.45);">
+        <p style="margin:0 0 8px;">
+          <b>FROID&CO</b> (France) assemble des vitrines frigorifiques pour la distribution alimentaire.
+        </p>
+        <ul class="muted" style="margin:0; padding-left:18px;">
+          <li>Année : <b>2025</b></li>
+          <li>Sites : <b>Site A (assemblage)</b> + <b>Site B (entrepôt)</b></li>
+          <li>Production : <b>3 000</b> vitrines/an</li>
+          <li>Objectif : calculer les émissions et identifier les priorités (risques + leviers)</li>
+        </ul>
+      </div>
+
+      <div class="card" style="padding:12px; background:rgba(14,23,48,.45);">
+        <div class="warn">
+          <b>Pièges typiques examen :</b>
+          <div class="small" style="margin-top:6px;">
+            1) m³ gaz ≠ kWh (PCS à appliquer) • 2) L/100 km → litres → kgCO₂e •
+            3) FE en <b>tCO₂e/k€</b> • 4) location-based ≠ market-based • 5) PRG = multiplicateur.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    <h2 style="margin:0 0 8px;">📊 Données d’activité 2025</h2>
+    <table>
+      <thead>
+        <tr><th>Poste</th><th>Donnée</th><th>Unité</th><th>Remarque</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>Gaz Site A</b></td><td>22 000</td><td>m³</td><td>PCS = 10,5 kWh/m³</td></tr>
+        <tr><td><b>Électricité Site A</b></td><td>650 000</td><td>kWh</td><td>2 méthodes possibles (LB/MB)</td></tr>
+        <tr><td><b>Électricité Site B</b></td><td>120 000</td><td>kWh</td><td>LB/MB</td></tr>
+        <tr><td><b>Acier (achats)</b></td><td>400</td><td>t</td><td>matière</td></tr>
+        <tr><td><b>Plastique (achats)</b></td><td>220</td><td>t</td><td>emballages + pièces</td></tr>
+        <tr><td><b>Transport amont</b></td><td>1 200</td><td>t sur 800 km</td><td>t.km à reconstruire</td></tr>
+        <tr><td><b>Transport aval</b></td><td>900</td><td>t sur 1 000 km</td><td>t.km à reconstruire</td></tr>
+        <tr><td><b>Camions internes (diesel)</b></td><td>320 000</td><td>km</td><td>conso 25 L/100 km</td></tr>
+        <tr><td><b>Fuite R134a</b></td><td>18</td><td>kg</td><td>PRG = 1430</td></tr>
+        <tr><td><b>Fuite R410A</b></td><td>6</td><td>kg</td><td>PRG = 2088</td></tr>
+        <tr><td><b>Déplacements salariés</b></td><td>300 000</td><td>km</td><td>voiture (dom-trav + pro)</td></tr>
+        <tr><td><b>Déchets</b></td><td>30 incinération / 10 décharge</td><td>t</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <div class="hr"></div>
+
+    <h2 style="margin:0 0 8px;">🧾 Facteurs d’émission (à utiliser)</h2>
+    <table>
+      <thead><tr><th>FE</th><th>Valeur</th><th>Unité</th></tr></thead>
+      <tbody>
+        <tr><td>Gaz (combustion)</td><td><b>0,205</b></td><td>kgCO₂e/kWh</td></tr>
+        <tr><td>Électricité France (Location-based)</td><td><b>0,057</b></td><td>kgCO₂e/kWh</td></tr>
+        <tr><td>Électricité (Market-based, garanties)</td><td><b>0,020</b></td><td>kgCO₂e/kWh</td></tr>
+        <tr><td>Acier</td><td><b>1900</b></td><td>kgCO₂e/tonne</td></tr>
+        <tr><td>Plastique</td><td><b>3000</b></td><td>kgCO₂e/tonne</td></tr>
+        <tr><td>Fret routier</td><td><b>0,105</b></td><td>kgCO₂e/t.km</td></tr>
+        <tr><td>Diesel (par litre)</td><td><b>2,60</b></td><td>kgCO₂e/litre</td></tr>
+        <tr><td>Voiture</td><td><b>0,220</b></td><td>kgCO₂e/km</td></tr>
+        <tr><td>R134a (PRG)</td><td><b>1430</b></td><td>kgCO₂e/kg</td></tr>
+        <tr><td>R410A (PRG)</td><td><b>2088</b></td><td>kgCO₂e/kg</td></tr>
+        <tr><td>Incinération</td><td><b>350</b></td><td>kgCO₂e/tonne</td></tr>
+        <tr><td>Décharge</td><td><b>600</b></td><td>kgCO₂e/tonne</td></tr>
+      </tbody>
+    </table>
+
+    <div class="hr"></div>
+
+    <h2 style="margin:0 0 6px;">🔁 Mini-table de conversion (rappel)</h2>
+    <table>
+      <thead><tr><th>Conversion</th><th>Règle</th></tr></thead>
+      <tbody>
+        <tr><td>m³ gaz → kWh</td><td><b>kWh = m³ × PCS</b> (ici PCS = 10,5)</td></tr>
+        <tr><td>L/100 km → litres</td><td><b>litres = km × (L/100)/100</b></td></tr>
+        <tr><td>t.km</td><td><b>t.km = tonnes × km</b></td></tr>
+        <tr><td>kg ↔ t</td><td><b>1 t = 1000 kg</b></td></tr>
+      </tbody>
+    </table>
+
+    <div class="hr"></div>
+
+    <h2 style="margin:0 0 8px;">🧠 QCM (30 questions)</h2>
+    <p class="muted small" style="margin-top:0">
+      Réponds puis clique <span class="kbd">Corriger</span>. Tu peux <span class="kbd">Réinitialiser</span> et recommencer.
+    </p>
+    <div id="quiz"></div>
+
+    <div class="controls">
+      <button id="gradeBtn">Corriger</button>
+      <button class="secondary" id="toggleAllBtn">Afficher toutes les explications</button>
+      <button class="danger" id="resetBtn">Réinitialiser</button>
+    </div>
+
+    <p class="muted small" style="margin:10px 0 0;">
+      Si tu veux, je peux ensuite te générer une version “<b>cas exam + tableau Excel</b>” (colonnes prêtes + formules SOMME.SI.ENS).
+    </p>
+  </main>
+
+  <aside class="card">
+    <h2 style="margin:0 0 8px;">📌 Tableau de bord</h2>
+    <div class="stat">
+      <div class="muted small">Score</div>
+      <div class="big" id="scoreText">— / 30</div>
+      <div class="bar"><div id="scoreBar"></div></div>
+      <div class="muted small" style="margin-top:8px;" id="scoreHint">Réponds puis clique Corriger.</div>
+    </div>
+
+    <div class="stat">
+      <div class="muted small">Ce cas te force à maîtriser :</div>
+      <ul class="muted" style="margin:8px 0 0; padding-left:18px;">
+        <li>Concordance <b>unité activité ↔ unité FE</b></li>
+        <li>Électricité <b>LB vs MB</b></li>
+        <li>Frigorigènes : <b>masse × PRG</b></li>
+        <li>Transport : <b>t.km</b> à reconstruire</li>
+        <li>Diesel : <b>km → litres → kgCO₂e</b></li>
+        <li>Priorisation : <b>poste & scope dominants</b></li>
+      </ul>
+    </div>
+
+    <div class="stat">
+      <div class="muted small">Astuce “plausibilité FE”</div>
+      <div class="muted small" style="margin-top:6px;">
+        Si un poste explose, vérifie d’abord : <b>unité</b>, puis <b>conversion</b>, puis <b>ordre de grandeur</b>
+        (ex : kg vs tonne, kWh vs MWh, km vs t.km).
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+  // ====== QUIZ DATA ======
+  // type: "single" or "multi"
+  const quizData = [
+    // 1-6 : scopes + conversions
+    {id:1, type:"single", tag:"Scope", prompt:"Q1. Le gaz consommé sur site relève de :", choices:[
+      {k:"A", text:"Scope 1"}, {k:"B", text:"Scope 2"}, {k:"C", text:"Scope 3"}
+    ], correct:["A"], explain:"Gaz brûlé sur site = émission directe → Scope 1."},
+
+    {id:2, type:"single", tag:"Scope", prompt:"Q2. L’électricité achetée relève de :", choices:[
+      {k:"A", text:"Scope 1"}, {k:"B", text:"Scope 2"}, {k:"C", text:"Scope 3"}
+    ], correct:["B"], explain:"Électricité achetée = indirecte énergie → Scope 2."},
+
+    {id:3, type:"single", tag:"Scope", prompt:"Q3. Les achats d’acier et plastique relèvent de :", choices:[
+      {k:"A", text:"Scope 1"}, {k:"B", text:"Scope 2"}, {k:"C", text:"Scope 3 amont"}, {k:"D", text:"Scope 3 aval"}
+    ], correct:["C"], explain:"Achats de biens/services = Scope 3 amont."},
+
+    {id:4, type:"single", tag:"Conversion", prompt:"Q4. Conversion gaz : 22 000 m³, PCS 10,5 kWh/m³ → consommation en kWh ?", choices:[
+      {k:"A", text:"231 000 kWh"}, {k:"B", text:"2 310 000 kWh"}, {k:"C", text:"23 100 kWh"}
+    ], correct:["A"], explain:"kWh = 22 000 × 10,5 = 231 000 kWh."},
+
+    {id:5, type:"single", tag:"Conversion", prompt:"Q5. Diesel : 320 000 km à 25 L/100 km → litres consommés ?", choices:[
+      {k:"A", text:"80 000 L"}, {k:"B", text:"8 000 L"}, {k:"C", text:"800 000 L"}
+    ], correct:["A"], explain:"Litres = 320 000 × (25/100) = 80 000 L."},
+
+    {id:6, type:"single", tag:"Conversion", prompt:"Q6. Transport amont : 1 200 t sur 800 km → t.km ?", choices:[
+      {k:"A", text:"960 000 t.km"}, {k:"B", text:"9 600 t.km"}, {k:"C", text:"96 000 t.km"}
+    ], correct:["A"], explain:"t.km = 1 200 × 800 = 960 000 t.km."},
+
+    // 7-12 : calculs énergie + électricité LB/MB
+    {id:7, type:"single", tag:"Calcul", prompt:"Q7. Émissions gaz (Scope 1) : 231 000 kWh × 0,205 = ?", choices:[
+      {k:"A", text:"47 355 kgCO₂e"}, {k:"B", text:"4 735,5 kgCO₂e"}, {k:"C", text:"473 550 kgCO₂e"}
+    ], correct:["A"], explain:"231 000 × 0,205 = 47 355 kgCO₂e (≈ 47,36 tCO₂e)."},
+
+    {id:8, type:"single", tag:"Calcul", prompt:"Q8. Électricité totale : 650 000 + 120 000 = ?", choices:[
+      {k:"A", text:"770 000 kWh"}, {k:"B", text:"7 700 000 kWh"}, {k:"C", text:"77 000 kWh"}
+    ], correct:["A"], explain:"Somme = 770 000 kWh."},
+
+    {id:9, type:"single", tag:"Calcul", prompt:"Q9. Émissions électricité (Location-based) : 770 000 × 0,057 = ?", choices:[
+      {k:"A", text:"43 890 kgCO₂e"}, {k:"B", text:"438 900 kgCO₂e"}, {k:"C", text:"4 389 kgCO₂e"}
+    ], correct:["A"], explain:"770 000 × 0,057 = 43 890 kgCO₂e (≈ 43,89 tCO₂e)."},
+
+    {id:10, type:"single", tag:"Calcul", prompt:"Q10. Émissions électricité (Market-based) : 770 000 × 0,020 = ?", choices:[
+      {k:"A", text:"15 400 kgCO₂e"}, {k:"B", text:"154 000 kgCO₂e"}, {k:"C", text:"1 540 kgCO₂e"}
+    ], correct:["A"], explain:"770 000 × 0,020 = 15 400 kgCO₂e (≈ 15,4 tCO₂e)."},
+
+    {id:11, type:"single", tag:"Concept", prompt:"Q11. La différence LB vs MB s’explique surtout par :", choices:[
+      {k:"A", text:"Le même réseau mais une méthode de comptabilisation différente (mix réseau vs contrats/garanties)"},
+      {k:"B", text:"Une erreur de calcul"},
+      {k:"C", text:"Le PRG des frigorigènes"}
+    ], correct:["A"], explain:"LB reflète le mix réseau ; MB reflète les achats/contrats/garanties d’origine."},
+
+    {id:12, type:"single", tag:"Calcul", prompt:"Q12. Gain d’émissions si on passe de LB à MB sur l’électricité : 43 890 − 15 400 = ?", choices:[
+      {k:"A", text:"28 490 kgCO₂e"}, {k:"B", text:"2 849 kgCO₂e"}, {k:"C", text:"284 900 kgCO₂e"}
+    ], correct:["A"], explain:"Différence = 28 490 kgCO₂e (≈ 28,49 tCO₂e)."},
+
+    // 13-17 : achats
+    {id:13, type:"single", tag:"Calcul", prompt:"Q13. Émissions acier : 400 t × 1900 = ?", choices:[
+      {k:"A", text:"760 000 kgCO₂e"}, {k:"B", text:"76 000 kgCO₂e"}, {k:"C", text:"7 600 000 kgCO₂e"}
+    ], correct:["A"], explain:"400×1900 = 760 000 kgCO₂e."},
+
+    {id:14, type:"single", tag:"Calcul", prompt:"Q14. Émissions plastique : 220 t × 3000 = ?", choices:[
+      {k:"A", text:"660 000 kgCO₂e"}, {k:"B", text:"66 000 kgCO₂e"}, {k:"C", text:"6 600 000 kgCO₂e"}
+    ], correct:["A"], explain:"220×3000 = 660 000 kgCO₂e."},
+
+    {id:15, type:"single", tag:"Analyse", prompt:"Q15. Parmi acier et plastique, le poste le plus émetteur est :", choices:[
+      {k:"A", text:"Acier"}, {k:"B", text:"Plastique"}, {k:"C", text:"Égalité"}
+    ], correct:["A"], explain:"Acier 760 000 > Plastique 660 000 kgCO₂e."},
+
+    {id:16, type:"single", tag:"Concept", prompt:"Q16. Les achats (acier/plastique) sont typiquement associés au risque :", choices:[
+      {k:"A", text:"Transition (prix carbone, exigences clients, réglementations amont)"},
+      {k:"B", text:"Uniquement physique"},
+      {k:"C", text:"Aucun risque"}
+    ], correct:["A"], explain:"Achats/matières : risques de transition (coût, normes, traçabilité, ACV, etc.)."},
+
+    {id:17, type:"multi", tag:"Leviers", prompt:"Q17. Leviers crédibles sur les achats (2 bonnes réponses) :", choices:[
+      {k:"A", text:"Réduire la masse matière / éco-conception"},
+      {k:"B", text:"Remplacer l’acier par de l’acier à plus forte part recyclée"},
+      {k:"C", text:"Ajouter un trajet de transport pour “diluer” les émissions"},
+      {k:"D", text:"Arrêter de mesurer (zéro émission sur le papier)"}
+    ], correct:["A","B"], explain:"A et B agissent sur le poste dominant ; C et D sont des non-sens."},
+
+    // 18-21 : transports
+    {id:18, type:"single", tag:"Conversion", prompt:"Q18. Transport aval : 900 t sur 1 000 km → t.km ?", choices:[
+      {k:"A", text:"900 000 t.km"}, {k:"B", text:"90 000 t.km"}, {k:"C", text:"9 000 t.km"}
+    ], correct:["A"], explain:"t.km = 900 × 1 000 = 900 000 t.km."},
+
+    {id:19, type:"single", tag:"Calcul", prompt:"Q19. Émissions transport amont : 960 000 t.km × 0,105 = ?", choices:[
+      {k:"A", text:"100 800 kgCO₂e"}, {k:"B", text:"10 080 kgCO₂e"}, {k:"C", text:"1 008 000 kgCO₂e"}
+    ], correct:["A"], explain:"960 000×0,105 = 100 800 kgCO₂e."},
+
+    {id:20, type:"single", tag:"Calcul", prompt:"Q20. Émissions transport aval : 900 000 t.km × 0,105 = ?", choices:[
+      {k:"A", text:"94 500 kgCO₂e"}, {k:"B", text:"9 450 kgCO₂e"}, {k:"C", text:"945 000 kgCO₂e"}
+    ], correct:["A"], explain:"900 000×0,105 = 94 500 kgCO₂e."},
+
+    {id:21, type:"single", tag:"Scope", prompt:"Q21. Ces transports amont/aval sont classés en :", choices:[
+      {k:"A", text:"Scope 1"}, {k:"B", text:"Scope 2"}, {k:"C", text:"Scope 3"}
+    ], correct:["C"], explain:"Transports sous-traités = Scope 3."},
+
+    // 22-25 : diesel interne + déplacements
+    {id:22, type:"single", tag:"Calcul", prompt:"Q22. Diesel interne : 80 000 L × 2,60 = ?", choices:[
+      {k:"A", text:"208 000 kgCO₂e"}, {k:"B", text:"20 800 kgCO₂e"}, {k:"C", text:"2 080 000 kgCO₂e"}
+    ], correct:["A"], explain:"80 000×2,60 = 208 000 kgCO₂e."},
+
+    {id:23, type:"single", tag:"Scope", prompt:"Q23. Le diesel brûlé par les camions internes relève de :", choices:[
+      {k:"A", text:"Scope 1"}, {k:"B", text:"Scope 2"}, {k:"C", text:"Scope 3"}
+    ], correct:["A"], explain:"Carburant consommé par flotte détenue/contrôlée = Scope 1."},
+
+    {id:24, type:"single", tag:"Calcul", prompt:"Q24. Déplacements voiture : 300 000 km × 0,220 = ?", choices:[
+      {k:"A", text:"66 000 kgCO₂e"}, {k:"B", text:"6 600 kgCO₂e"}, {k:"C", text:"660 000 kgCO₂e"}
+    ], correct:["A"], explain:"300 000×0,220 = 66 000 kgCO₂e."},
+
+    {id:25, type:"single", tag:"Scope", prompt:"Q25. Les déplacements salariés sont classés en :", choices:[
+      {k:"A", text:"Scope 1"}, {k:"B", text:"Scope 2"}, {k:"C", text:"Scope 3"}
+    ], correct:["C"], explain:"Déplacements des salariés (commuting + pro) = Scope 3."},
+
+    // 26-27 : fuites (PRG)
+    {id:26, type:"single", tag:"Calcul", prompt:"Q26. Fuite R134a : 18 kg × 1430 = ?", choices:[
+      {k:"A", text:"25 740 kgCO₂e"}, {k:"B", text:"257 400 kgCO₂e"}, {k:"C", text:"2 574 kgCO₂e"}
+    ], correct:["A"], explain:"18×1430 = 25 740 kgCO₂e."},
+
+    {id:27, type:"single", tag:"Calcul", prompt:"Q27. Fuite R410A : 6 kg × 2088 = ?", choices:[
+      {k:"A", text:"12 528 kgCO₂e"}, {k:"B", text:"125 280 kgCO₂e"}, {k:"C", text:"1 252,8 kgCO₂e"}
+    ], correct:["A"], explain:"6×2088 = 12 528 kgCO₂e."},
+
+    // 28 : déchets
+    {id:28, type:"multi", tag:"Calcul", prompt:"Q28. Déchets : incinération 30 t (×350) et décharge 10 t (×600). Quelles valeurs sont correctes ? (2 bonnes réponses)", choices:[
+      {k:"A", text:"Incinération = 10 500 kgCO₂e"}, {k:"B", text:"Incinération = 105 000 kgCO₂e"},
+      {k:"C", text:"Décharge = 6 000 kgCO₂e"}, {k:"D", text:"Décharge = 60 000 kgCO₂e"}
+    ], correct:["A","C"], explain:"30×350=10 500 kgCO₂e ; 10×600=6 000 kgCO₂e."},
+
+    // 29 : total ordre de grandeur (LB)
+    {id:29, type:"single", tag:"Synthèse", prompt:"Q29. Total approx. (avec électricité Location-based) est le plus proche de :", choices:[
+      {k:"A", text:"≈ 1 988 000 kgCO₂e (~1 988 tCO₂e)"},
+      {k:"B", text:"≈ 198 800 kgCO₂e (~199 tCO₂e)"},
+      {k:"C", text:"≈ 19 880 000 kgCO₂e (~19 880 tCO₂e)"}
+    ],
+    correct:["A"],
+    explain:"Somme LB ≈ gaz 47 355 + elec 43 890 + acier 760 000 + plastique 660 000 + transp 195 300 + diesel 208 000 + fuites 38 268 + déplacements 66 000 + déchets 16 500 ≈ 1  (≈ 1,99 M kgCO₂e)."
+    },
+
+    // 30 : poste dominant + scope dominant + action prioritaire (multi)
+    {id:30, type:"multi", tag:"Priorités", prompt:"Q30. Sur ce cas, quelles affirmations sont vraies ? (3 bonnes réponses)", choices:[
+      {k:"A", text:"Le scope dominant est le Scope 3"},
+      {k:"B", text:"Le poste dominant est l’acier"},
+      {k:"C", text:"Un levier prioritaire : achats (matières) + éco-conception"},
+      {k:"D", text:"Le poste dominant est l’électricité"},
+      {k:"E", text:"La fuite est négligeable dans tous les cas"}
+    ],
+    correct:["A","B","C"],
+    explain:"Achats matières (Scope 3 amont) dominent ; l’acier est n°1 ; la stratégie la plus structurante vise matières/éco-conception. L’électricité n’est pas dominante ici ; la fuite n’est pas “toujours négligeable” (selon cas, elle peut dominer)."
+    }
+  ];
+
+  // ====== RENDER ======
+  const quizEl = document.getElementById("quiz");
+  const scoreText = document.getElementById("scoreText");
+  const scoreBar = document.getElementById("scoreBar");
+  const scoreHint = document.getElementById("scoreHint");
+  const toggleAllBtn = document.getElementById("toggleAllBtn");
+
+  function renderQuiz(){
+    quizEl.innerHTML = "";
+    quizData.forEach(q=>{
+      const qDiv = document.createElement("div");
+      qDiv.className = "q";
+      qDiv.id = `q_${q.id}`;
+
+      const head = document.createElement("div");
+      head.className = "qhead";
+
+      const title = document.createElement("p");
+      title.className = "qtitle";
+      title.textContent = q.prompt;
+
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = q.type === "multi" ? `${q.tag} · réponses multiples` : `${q.tag} · réponse unique`;
+
+      head.appendChild(title);
+      head.appendChild(tag);
+
+      const choices = document.createElement("div");
+      choices.className = "choices";
+
+      q.choices.forEach(ch=>{
+        const id = `q${q.id}_${ch.k}`;
+        const lab = document.createElement("label");
+        lab.className = "choice";
+        lab.setAttribute("for", id);
+
+        const inp = document.createElement("input");
+        inp.type = q.type === "multi" ? "checkbox" : "radio";
+        inp.name = `q${q.id}`;
+        inp.id = id;
+        inp.value = ch.k;
+
+        const txt = document.createElement("div");
+        txt.innerHTML = `<b>${ch.k}.</b> <span>${ch.text}</span>`;
+
+        lab.appendChild(inp);
+        lab.appendChild(txt);
+        choices.appendChild(lab);
+      });
+
+      const explain = document.createElement("div");
+      explain.className = "explain";
+      explain.id = `exp_${q.id}`;
+      explain.innerHTML = `<div class="k">Correction</div><div class="small">${q.explain}</div>`;
+
+      qDiv.appendChild(head);
+      qDiv.appendChild(choices);
+      qDiv.appendChild(explain);
+
+      quizEl.appendChild(qDiv);
+    });
+  }
+
+  function getSelectedKeys(q){
+    const inputs = [...document.querySelectorAll(`input[name="q${q.id}"]`)];
+    return inputs.filter(i=>i.checked).map(i=>i.value).sort();
+  }
+  function arraysEqual(a,b){
+    if(a.length !== b.length) return false;
+    for(let i=0;i<a.length;i++) if(a[i]!==b[i]) return false;
+    return true;
+  }
+
+  function grade(){
+    let score = 0;
+    let answered = 0;
+
+    quizData.forEach(q=>{
+      const selected = getSelectedKeys(q);
+      const correct = [...q.correct].sort();
+      const exp = document.getElementById(`exp_${q.id}`);
+      const qBox = document.getElementById(`q_${q.id}`);
+
+      exp.classList.remove("good","bad");
+      const isAnswered = selected.length > 0;
+      if(isAnswered) answered++;
+
+      const ok = arraysEqual(selected, correct);
+      if(ok) score++;
+
+      exp.style.display = "block";
+      exp.classList.add(ok ? "good" : "bad");
+      exp.querySelector(".k").textContent = ok ? "✅ Correct" : "❌ Incorrect";
+
+      qBox.style.borderColor = ok ? "rgba(34,197,94,.45)" : (isAnswered ? "rgba(251,113,133,.45)" : "rgba(251,191,36,.45)");
+      qBox.style.background = ok ? "rgba(34,197,94,.06)" : (isAnswered ? "rgba(251,113,133,.05)" : "rgba(251,191,36,.06)");
+
+      if(!ok){
+        const corr = correct.join(", ");
+        const note = document.createElement("div");
+        note.className = "small muted expected";
+        note.style.marginTop = "6px";
+        note.innerHTML = `Réponse attendue : <b>${corr}</b>`;
+        const existing = exp.querySelector(".expected");
+        if(existing) existing.remove();
+        exp.appendChild(note);
+      }else{
+        const existing = exp.querySelector(".expected");
+        if(existing) existing.remove();
+      }
+    });
+
+    const pct = Math.round((score/quizData.length)*100);
+    scoreText.textContent = `${score} / ${quizData.length}`;
+    scoreBar.style.width = `${pct}%`;
+
+    let msg = "";
+    if(answered === 0) msg = "Coche des réponses puis corrige.";
+    else if(pct >= 90) msg = "Excellent : conversions + logiques scopes bien verrouillées.";
+    else if(pct >= 75) msg = "Bon niveau : attention aux reconstructions (t.km, L/100).";
+    else if(pct >= 55) msg = "Ça progresse : revois unités et ordres de grandeur.";
+    else msg = "Repartir sur : unité → conversion → activité×FE → kg↔t.";
+    scoreHint.textContent = `${pct}% • ${msg}`;
+  }
+
+  function resetQuiz(){
+    document.querySelectorAll("input[type='radio'], input[type='checkbox']").forEach(i=> i.checked=false);
+    quizData.forEach(q=>{
+      const exp = document.getElementById(`exp_${q.id}`);
+      const qBox = document.getElementById(`q_${q.id}`);
+      exp.style.display="none";
+      exp.classList.remove("good","bad");
+      const existing = exp.querySelector(".expected");
+      if(existing) existing.remove();
+      qBox.style.borderColor="var(--line)";
+      qBox.style.background="rgba(14,23,48,.55)";
+    });
+    scoreText.textContent = `— / ${quizData.length}`;
+    scoreBar.style.width = "0%";
+    scoreHint.textContent = "Réponds puis clique Corriger.";
+    toggleAllBtn.dataset.state="hidden";
+    toggleAllBtn.textContent="Afficher toutes les explications";
+  }
+
+  function toggleAll(){
+    const state = toggleAllBtn.dataset.state || "hidden";
+    const show = state === "hidden";
+    quizData.forEach(q=>{
+      document.getElementById(`exp_${q.id}`).style.display = show ? "block" : "none";
+    });
+    toggleAllBtn.dataset.state = show ? "shown" : "hidden";
+    toggleAllBtn.textContent = show ? "Masquer toutes les explications" : "Afficher toutes les explications";
+  }
+
+  renderQuiz();
+  document.getElementById("gradeBtn").addEventListener("click", grade);
+  document.getElementById("resetBtn").addEventListener("click", resetQuiz);
+  toggleAllBtn.addEventListener("click", toggleAll);
+</script>
+</body>
+</html>
